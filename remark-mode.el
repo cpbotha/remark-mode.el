@@ -183,6 +183,13 @@
   "Optional user provided index.html file to write html slide set back to."
   (concat (file-name-directory (buffer-file-name)) "index.html"))
 
+(defun remark-template ()
+  "Prefer local remark.html template in the same dir as current buffer, else use packaged template.
+This is only useful the first time that you build the presentation, when the index.html is created.
+From then on, changes you make to the index.html will be retained."
+  (let ((local-template (concat (file-name-directory (buffer-file-name)) "remark.html"))
+        (default-remark-template (concat remark--folder "remark.html")))
+    (if (file-exists-p local-template) local-template default-remark-template)))
 
 (defun remark--write-output-file (template-file content out-file)
   "Weave TEMPLATE-FILE together with CONTENT to create slide show. Write the result to OUT-FILE."
@@ -206,12 +213,11 @@
 
 (defun remark--write-output-files ()
   "Write the remark output index.html file to the same folder as the .remark file for the resulting slide show."
-  (let* ((default-remark-template (concat remark--folder "remark.html"))
-         (user-out-file (file-truename (remark--output-file-name)))
+  (let* ((user-out-file (file-truename (remark--output-file-name)))
          (markdown (buffer-string)))
     (remark--write-output-file (if (file-exists-p user-out-file)
                                    user-out-file
-                                 default-remark-template) markdown user-out-file)))
+                                 (remark-template)) markdown user-out-file)))
 
 
 (defun remark--run-osascript (s)
