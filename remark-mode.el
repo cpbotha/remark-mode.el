@@ -303,7 +303,8 @@
 
 (defun remark--save-hook ()
   "Hook to reload ‘remark-mode’ buffers when saved."
-  (when (string-suffix-p ".remark" buffer-file-name)
+  ;; users can also activate remark-mode on normal .md files
+  (when (eq major-mode 'remark-mode)
     (save-buffer)
     (if (remark--is-connected)
         (progn
@@ -311,7 +312,7 @@
           (if remark--is-osx
               (remark-visit-slide-in-browser)
             (shell-command "browser-sync reload")))
-      (concat "Wrote " buffer-file-name ". "
+      (concat "Wrote " buffer-file-name " and remark files. "
               "Use C-c C-s c to connect to a browser using browser-sync!"))))
 
 
